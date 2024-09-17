@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <regex>
+#include <unordered_map>
 using namespace std;
 
 int main(int argc, char* argv[]) {
@@ -16,18 +17,22 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string text((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    std::vector<std::string> tokens;
-    const std::regex delim("\\s+");
+    string text((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+    vector<string> tokens;
+    unordered_map<string, int> wordCount;
+    const regex delim("\\s+");
 
-    auto begin = std::sregex_token_iterator(text.begin(), text.end(), delim, -1);
-    auto end = std::sregex_token_iterator();
-    for (std::sregex_token_iterator word = begin; word != end; word++) {
-        tokens.push_back(*word);
+    auto begin = sregex_token_iterator(text.begin(), text.end(), delim, -1);
+    auto end = sregex_token_iterator();
+    for (sregex_token_iterator word = begin; word != end; word++) {
+        string token = *word;
+        tokens.push_back(token);
+        wordCount[token]++;
     }
 
-    for (const auto& str : tokens)
-        std::cout << str << std::endl;
+    for (const auto& pair : wordCount) {
+        cout << pair.first << ": " << pair.second << endl;
+    }
 
     return 0;
 }
