@@ -8,11 +8,9 @@
 #ifndef ST_HPP
 #define ST_HPP
 
-#include <iostream>
 #include <utility>
 #include <vector>
-
-
+#include <iostream>
 #include "RBT.hpp"
 #include "RBTPrint.hpp"
 
