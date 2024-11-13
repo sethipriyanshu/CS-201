@@ -1,148 +1,134 @@
-/*
-  Author: Priyanshu Sethi
-  Email: psethi@crimson.ua.edu
-  Section: Fall 2024 CS 201
-  Assignment: 2
+/* 
+Name: Priyanshu Sethi
+Email: psethi@crimson.ua.edu
+Course Section: Fall 2024 CS 201
+Homework #: 2
 */
 
-#ifndef ST_HPP
-#define ST_HPP
 
+#ifndef _ST_HPP_
 #include <utility>
 #include <vector>
 #include <iostream>
+#define _ST_HPP_
 #include "RBT.hpp"
 #include "RBTPrint.hpp"
 
+// Provides additional functionality like clear, insert, remove, and conversion to vector
 template <class Key, class Type>
 class ST : public RedBlackTree<Key, Type> {
 public:
-    using iterator = RBTNode<Key, Type>*;
+    typedef RBTNode<Key, Type>* iterator;
 
-    // Constructor
-    ST() : nodeCount(0) {}
+    // Default constructor
+    ST() {}
 
-    // Destructor
+    // Destructor, clears the tree to free memory
     ~ST() {
         clear();
     }
 
-    // Access or insert element
+    // Overloads the [] operator for easy access and modification of nodes
     Type& operator[](const Key& key) {
-    iterator node = find(key);
-    if (node == nullptr) {
-        node = this->Insert(key, Type());  // Get node directly from Insert
-        if (node != nullptr) {
-            nodeCount++;
+        RBTNode<Key, Type>* node = this->Search(key);  // Use Search from RedBlackTree
+        if (node == nullptr) {
+            node = this->Insert(key, Type{});  // Insert if key not found
         }
+        return node->value;
     }
-    return node->value;
-}
 
-    // Insert a (key, value) pair
+    // Inserts a new key-value pair or updates value if key already exists
     void insert(const Key& key, const Type& value) {
-    iterator node = find(key);
-    if (node != nullptr) {
-        node->value = value;
-    } else {
-        node = this->Insert(key, value);  // Get node directly
-        if (node != nullptr) {
-            nodeCount++;
+        RBTNode<Key, Type>* node = this->Search(key);  // Check if key exists
+        if (node == nullptr) {
+            this->Insert(key, value);  // Insert new node if key doesn't exist
+        } else {
+            node->value = value;  // Update existing node's value
         }
     }
-}
 
-    // Remove element at given position
+    // Removes node at specified iterator position
     void remove(iterator position) {
         if (position != nullptr) {
             this->RemoveNode(position);  // Use RemoveNode from RedBlackTree
-            nodeCount--;
         }
     }
 
-    // Remove element with given key
+    // Removes node with specified key and returns number of nodes removed (0 or 1)
     std::size_t remove(const Key& key) {
-        iterator node = find(key);
-        if (node != nullptr) {
-            this->Remove(key);  // Use Remove from RedBlackTree
-            nodeCount--;
-            return 1;
-        }
-        return 0;
+        return this->Remove(key);  // Use Remove from RedBlackTree
     }
 
-    // Clear all elements
+    // Clears the entire tree by deleting nodes recursively
     void clear() {
-    if (this->root != nullptr) {
-        this->DeleteTree(this->root);
-        this->root = nullptr;  // Nullify root after deletion
-        nodeCount = 0;
+        this->DeleteTree(this->root);  // Use DeleteTree from RedBlackTree
+        this->root = nullptr;
     }
-}
 
-
-    // Check if ST is empty
+    // Checks if tree is empty
     bool empty() const {
-        return nodeCount == 0;
+        return this->root == nullptr;
     }
 
-    // Get size of ST
+    // Returns the number of nodes in the tree
     std::size_t size() const {
-        return nodeCount;
+        if (this->root == nullptr) {
+            return 0;
+        } else {
+            return this->root->Count();  // Use Count method from RBTNode
+        }
     }
 
-    // Count occurrences of key
-    std::size_t count(const Key& key) const {
-        return (find(key) != nullptr) ? 1 : 0;
+    // Counts the occurrences of the specified key (0 or 1)
+    std::size_t count(const Key& key) {
+        return this->Search(key) != nullptr ? 1 : 0;
     }
 
-    // Find element with given key
+    // Searches for a node with the specified key
     iterator find(const Key& key) {
-        return this->Search(key);  // Use Search from RedBlackTree
+        return this->Search(key);
     }
 
-    // Check if key exists
-    bool contains(const Key& key) const {
-        return find(key) != nullptr;
+    // Checks if a specified key exists in the tree
+    bool contains(const Key& key) {
+        return this->Search(key) != nullptr;
     }
 
-    // Convert to vector of pairs
-    std::vector<std::pair<Key, Type>> toVector() const {
-        std::vector<std::pair<Key, Type>> result;
-        inorderToVector(this->root, result);  // Helper function defined below
-        return result;
+    // Converts the tree to a vector of key-value pairs using in-order traversal
+    std::vector<std::pair<Key, Type>> toVector() {
+        std::vector<std::pair<Key, Type>> vec;
+        toVectorRecursive(this->root, vec);
+        return vec;
     }
 
-    // Display tree structure
-    void displayTree() const {
-        std::cout << RBTPrint<Key,Type>::TreeToString(this->root) << std::endl;  // Use RBTPrint for tree visualization
+    // Displays the tree in a formatted string format
+    void displayTree() {
+        std::cout << RBTPrint<Key,Type>::TreeToString(this->root) << std::endl;
     }
 
-    // Display in sorted order
-    void display() const {
-        inorderDisplay(this->root);  // Helper function defined below
-        std::cout << std::endl;
+    // Displays the tree nodes in an in-order traversal format
+    void display() {
+        displayRecursive(this->root);
     }
 
-private:
-    std::size_t nodeCount;
-
-    // Helper function for toVector
-    void inorderToVector(iterator node, std::vector<std::pair<Key, Type>>& result) const {
-        if (node != nullptr) {
-            inorderToVector(node->left, result);
-            result.push_back(std::make_pair(node->key, node->value));
-            inorderToVector(node->right, result);
+    // Helper function for toVector to recursively traverse the tree and add elements to vector
+    void toVectorRecursive(RBTNode<Key, Type>* node, std::vector<std::pair<Key, Type>>& vec) {
+        if (node == nullptr) {
+            return;
         }
+        toVectorRecursive(node->left, vec);
+        vec.push_back({node->key, node->value});
+        toVectorRecursive(node->right, vec);
     }
 
-    // Helper function for display
-    void inorderDisplay(iterator node) const {
-        if (node != nullptr) {
-            inorderDisplay(node->left);
-            std::cout << "(" << node->key << ", " << node->value << ") ";
-            inorderDisplay(node->right);
+    // Helper function for display to recursively print each node's key and value
+    void displayRecursive(RBTNode<Key, Type>* node) {
+        if (node == nullptr) {
+            return;
         }
+        displayRecursive(node->left);
+        std::cout << node->key << ": " << node->value << std::endl;
+        displayRecursive(node->right);
     }
 };
 
