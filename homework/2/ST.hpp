@@ -5,7 +5,6 @@ Course Section: Fall 2024 CS 201
 Homework #: 2
 */
 
-
 #ifndef _ST_HPP_
 #include <utility>
 #include <vector>

@@ -1,10 +1,3 @@
-/* 
-Name: Priyanshu Sethi
-Email: psethi@crimson.ua.edu
-Course Section: Fall 2024 CS 201
-Homework #: 2
-*/
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -62,11 +55,18 @@ int main(int argc, char* argv[]) {
 
     inputFile.close();
 
-    // Display word frequencies and other information
-    cout << "Word Count:" << endl;
+    // Display word frequencies in a tabular format
+    cout << "Word Count (Tabular Format):" << endl;
     wordCounter.display();
 
-    cout << "Number of unique words: " << wordCounter.size() << endl;
+    // Convert the tree to a vector and display it
+    cout << "\nTree Vector (Key-Value Pairs):" << endl;
+    std::vector<std::pair<string, int>> treeVector = wordCounter.toVector();
+    for (const auto& kv : treeVector) {
+        cout << kv.first << ": " << kv.second << endl;
+    }
+
+    cout << "\nNumber of unique words: " << wordCounter.size() << endl;
     cout << "Execution time: " << elapsed.count() << " milliseconds" << endl;
 
     return 0;
